@@ -35,7 +35,7 @@ public class ContainerController implements IContainerController {
 
 		for (File repository : libraryRepositories) {
 			String repositoryName = repository.getName();
-			Pattern p = Pattern.compile("/(CSV|Text)_(.*)/g");
+			Pattern p = Pattern.compile("(CSV|Text)_(.*)");
 			Matcher m = p.matcher(repositoryName);
 			if (m.matches()) {
 				String[] s = repositoryName.split("_");
@@ -74,17 +74,17 @@ public class ContainerController implements IContainerController {
 	}
 
 	public void update(Book book) {
-		for (LibraryContainer lc : DbContainer.getInstance().getLibs()) {
-			if (lc.getType().equals("CSV")) {
-				CsvDbController.getInstance().update(book);
 
-			}
+		if (book.getLc().getType().equals("CSV")) {
+			CsvDbController.getInstance().update(book);
 
-			if (lc.getType().equals("Text")) {
-				TextFileDbController.getInstance().update(book);
-
-			}
 		}
+
+		if (book.getLc().getType().equals("Text")) {
+			TextFileDbController.getInstance().update(book);
+
+		}
+
 	}
 
 	@Override

@@ -1,14 +1,13 @@
 package com.exposit.tr.dobrilko.library.entity;
 
-import java.util.Date;
-
+import java.util.Calendar;
 import com.exposit.tr.dobrilko.library.db_container.LibraryContainer;
 
 public class Book {
 	private int index;
 	private String author;
 	private String name;
-	private Date issueDate;
+	private Calendar issueDate;
 	private String abonent;
 	private String filePath;
 	private LibraryContainer lc;
@@ -37,11 +36,11 @@ public class Book {
 		this.name = name;
 	}
 
-	public Date getIssueDate() {
+	public Calendar getIssueDate() {
 		return issueDate;
 	}
 
-	public void setIssueDate(Date issueDate) {
+	public void setIssueDate(Calendar issueDate) {
 		this.issueDate = issueDate;
 	}
 

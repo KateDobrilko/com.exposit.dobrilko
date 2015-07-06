@@ -5,7 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -32,7 +33,6 @@ public class TextFileDbController implements IDbController {
 		return instance;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void read(String path, String libraryName, String type) {
 		File directory = new File(path);
@@ -53,13 +53,17 @@ public class TextFileDbController implements IDbController {
 			}
 
 			Book book = new Book();
-			book.setAuthor(p.getProperty("Author"));
-			book.setIndex(Integer.parseInt(p.getProperty("Index")));
-			if (p.getProperty("Issued") != "") {
-				book.setIssueDate(new Date(p.getProperty("Issued")));
+			book.setAuthor(p.getProperty("Author").trim());
+			book.setIndex(Integer.parseInt(p.getProperty("Index").trim()));
+			if (!p.getProperty("Issued").isEmpty()) {
+				String[] d = p.getProperty("Issued").split("\\.");
+				int year = Integer.parseInt(d[0].trim());
+				int month = Integer.parseInt(d[1].trim());
+				int day = Integer.parseInt(d[2].trim());
+				book.setIssueDate(new GregorianCalendar(year, month - 1, day));
 			}
-			book.setName(p.getProperty("Name"));
-			book.setSubscriber(p.getProperty("Issuedto"));
+			book.setName(p.getProperty("Name").trim());
+			book.setSubscriber(p.getProperty("Issuedto").trim());
 			book.setFilePath(file.getAbsolutePath());
 			book.setLc(lc);
 
@@ -75,8 +79,9 @@ public class TextFileDbController implements IDbController {
 		try (FileWriter writer = new FileWriter(book.getFilePath(), false);) {
 
 			for (Book b : book.getLc().getBooks()) {
+				StringBuilder sb = new StringBuilder();
 				if (b.getFilePath() == book.getFilePath()) {
-					StringBuilder sb = new StringBuilder();
+
 					sb.append("Index=");
 					sb.append(book.getIndex());
 					sb.append(System.lineSeparator());
@@ -88,7 +93,12 @@ public class TextFileDbController implements IDbController {
 					sb.append(System.lineSeparator());
 					sb.append("Issued=");
 					if (book.getIssueDate() != null) {
-						sb.append(book.getIssueDate().toString());
+						sb.append(book.getIssueDate().get(Calendar.YEAR));
+						sb.append(".");
+						sb.append(book.getIssueDate().get(Calendar.MONTH) + 1);
+						sb.append(".");
+						sb.append(book.getIssueDate()
+								.get(Calendar.DAY_OF_MONTH));
 					}
 					sb.append(System.lineSeparator());
 					sb.append("Issuedto=");
@@ -97,8 +107,8 @@ public class TextFileDbController implements IDbController {
 					}
 					sb.append(System.lineSeparator());
 
-					writer.write(sb.toString());
 				}
+				writer.write(sb.toString());
 			}
 		} catch (IOException e) {
 			logger.error(e);

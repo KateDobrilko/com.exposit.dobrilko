@@ -1,8 +1,7 @@
 package com.exposit.tr.dobrilko.library.result_composer;
 
 import java.util.ArrayList;
-import java.util.Date;
-
+import java.util.Calendar;
 import com.exposit.tr.dobrilko.library.entity.Book;
 
 public class ResultComposer {
@@ -21,15 +20,43 @@ public class ResultComposer {
 
 	public String prepareFindAnswer(ArrayList<Book> books) {
 		StringBuilder sb = new StringBuilder();
-		if (books != null) {
+		if (!books.isEmpty()) {
+			int missing = 0;
 			for (Book book : books) {
+				if (!book.getSubscriber().isEmpty()) {
+					missing++;
+				}
 
-				sb.append("FOUND ");
-				sb.append("id=");
-				sb.append(book.getIndex());
-				sb.append(" lib=");
-				sb.append(book.getLc().getLibraryName());
-				sb.append(System.lineSeparator());
+			}
+			if (missing != books.size()) {
+				for (Book book : books) {
+					if (book.getSubscriber() == null) {
+						sb.append("FOUND ");
+						sb.append("id=");
+						sb.append(book.getIndex());
+						sb.append(" lib=");
+						sb.append(book.getLc().getLibraryName());
+						sb.append(System.lineSeparator());
+					}
+				}
+			} else {
+				for (Book book : books) {
+
+					sb.append("FOUNDMISSING ");
+					sb.append("id=");
+					sb.append(book.getIndex());
+					sb.append(" lib=");
+					sb.append(book.getLc().getLibraryName());
+					sb.append(" issued=");
+
+					sb.append(book.getIssueDate().get(Calendar.DAY_OF_MONTH));
+					sb.append(".");
+					sb.append(book.getIssueDate().get(Calendar.MONTH)+1);
+					sb.append(".");
+					sb.append(book.getIssueDate().get(Calendar.YEAR));
+
+					sb.append(System.lineSeparator());
+				}
 			}
 		} else {
 			sb.append("NOTFOUND");
@@ -58,24 +85,33 @@ public class ResultComposer {
 		return sb.toString();
 	}
 
-	public String prepareOrderAnswer(Boolean reserved, String abonent, Date date) {
+	public String prepareOrderAnswer(Boolean reserved, String abonent,
+			Calendar calendar) {
 		StringBuilder sb = new StringBuilder();
 		if (reserved != null) {
-			if (reserved == true) {
+			if (reserved == false) {
 				sb.append("RESERVED ");
 				sb.append("abonent=");
 				sb.append(abonent);
 				sb.append(" date=");
-				sb.append(date.toString());
+				sb.append(calendar.get(Calendar.DAY_OF_MONTH));
+				sb.append(".");
+				sb.append(calendar.get(Calendar.MONTH)+1);
+				sb.append(".");
+				sb.append(calendar.get(Calendar.YEAR));
 				sb.append(System.lineSeparator());
 				sb.append(System.lineSeparator());
 			}
-			if (reserved == false) {
+			if (reserved == true) {
 				sb.append("OK ");
 				sb.append("abonent=");
 				sb.append(abonent);
 				sb.append(" date=");
-				sb.append(date.toString());
+				sb.append(calendar.get(Calendar.DAY_OF_MONTH));
+				sb.append(".");
+				sb.append(calendar.get(Calendar.MONTH)+1);
+				sb.append(".");
+				sb.append(calendar.get(Calendar.YEAR));
 				sb.append(System.lineSeparator());
 			}
 		} else {

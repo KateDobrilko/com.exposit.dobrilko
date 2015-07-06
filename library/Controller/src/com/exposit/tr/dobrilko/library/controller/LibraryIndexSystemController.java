@@ -1,8 +1,7 @@
 package com.exposit.tr.dobrilko.library.controller;
 
 import java.util.ArrayList;
-import java.util.Date;
-
+import java.util.Calendar;
 import com.exposit.tr.dobrilko.library.api.ILibraryIndexSystemController;
 import com.exposit.tr.dobrilko.library.db.api.IContainerController;
 import com.exposit.tr.dobrilko.library.entity.Book;
@@ -11,9 +10,10 @@ import com.exposit.tr.dobrilko.library.result_composer.ResultComposer;
 
 public class LibraryIndexSystemController implements
 		ILibraryIndexSystemController {
-	IContainerController container = ContainerController.getInstance();
+	private IContainerController container = ContainerController.getInstance();
+	private String path = "src\\com\\exposit\\tr\\dobrilko\\library\\repository\\Libraries";
 
-	public LibraryIndexSystemController(String path) {
+	public LibraryIndexSystemController() {
 		container.loadLibraries(path);
 	}
 
@@ -23,7 +23,7 @@ public class LibraryIndexSystemController implements
 		ArrayList<Book> books = new ArrayList<Book>();
 
 		for (Book book : container.getAllBooks()) {
-			if (book.getAuthor().equals(author)) {
+			if (book.getAuthor().trim().equals(author)) {
 				books.add(book);
 			}
 		}
@@ -61,30 +61,78 @@ public class LibraryIndexSystemController implements
 
 	@Override
 	public String orderBook(String subscriber, int index) {
+		Boolean flag = null;
 		Book book = null;
+		Calendar issueDate=null;
+		String s = null;
 		for (Book b : container.getAllBooks()) {
 			if (b.getIndex() == index) {
-				book = b;
+				flag = false;
+				if (b.getSubscriber() == null) {
+					s = subscriber;
+					book = b;
+					b.setIssueDate(Calendar.getInstance());
+					b.setSubscriber(subscriber);
+					flag = true;
+					issueDate = b.getIssueDate();
+					container.update(book);
+				}
+			}
+			if ((flag != null) && (flag.equals(false))) {
+				s = b.getSubscriber();
+				issueDate=b.getIssueDate();
 			}
 		}
-		book.setIssueDate(new Date());
-		book.setSubscriber(subscriber);
-		// TODO
-		return ResultComposer.getInstance().prepareOrderAnswer(false,
-				subscriber, book.getIssueDate());
+
+		
+
+		return ResultComposer.getInstance().prepareOrderAnswer(flag, s,
+				issueDate);
 
 	}
 
 	@Override
 	public String returnBook(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		Boolean flag = null;
+		Book book = null;
+		String abonent=null;
+		
+		for (Book b : container.getAllBooks()) {
+			if (b.getIndex() == index) {
+				flag = false;
+				if (b.getSubscriber() != null) {
+					
+					book = b;
+					abonent = b.getSubscriber();
+					b.setIssueDate(null);
+					b.setSubscriber(null);
+					flag = true;
+					
+					container.update(book);
+				}
+			}
+			if ((flag != null) && (flag.equals(false))) {
+				
+			}
+		}
+
+		
+
+		return ResultComposer.getInstance().prepareReturnAnswer(flag, abonent);
 	}
 
 	@Override
 	public void loadAllBooks(String path) {
-		// TODO Auto-generated method stub
+		container.loadLibraries(path);
 
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 }

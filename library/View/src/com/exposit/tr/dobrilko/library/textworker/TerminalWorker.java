@@ -17,6 +17,7 @@ public class TerminalWorker {
 
 	}
 
+	
 	public void printString(String result) {
 
 		System.out.println(result);

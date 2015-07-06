@@ -2,7 +2,6 @@ package com.exposit.tr.dobrilko.library.db.api;
 
 import java.util.ArrayList;
 
-import com.exposit.tr.dobrilko.library.db_container.DbContainer;
 import com.exposit.tr.dobrilko.library.entity.Book;
 
 public interface IContainerController {
